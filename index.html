@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="無料でHEICをJPGに変換。画像圧縮・一括リサイズ・トリミング・回転・反転をブラウザ内で処理し、ZIPで保存できます。登録不要。">
+<title>無料画像ツール｜HEIC変換・圧縮・リサイズ | 画像ツール</title>
+
+<link rel="stylesheet" href="style.css?v=20260928">
+</head>
+<body class="image-tools-page">
+<header class="site-header"><a class="brand" href="index.html">画像ツール <span>IMAGE TOOLS</span></a><nav class="standalone-nav" aria-label="メインメニュー"><a href="#tools">画像を編集</a><a href="#faq">よくある質問</a><a href="https://daitoku-inc.com/free-tools.html">無料ツール一覧 ↗</a></nav></header>
+<main class="image-main">
+<div class="image-wrap">
+<nav class="image-breadcrumb"><a href="https://daitoku-inc.com/free-tools.html">無料ツール一覧</a><span>›</span><span>画像ツール</span></nav>
+<div class="image-title">
+<div>
+<span class="image-kicker">IMAGE TOOLS · FREE</span>
+<h1>画像を、思い通りのかたちに。</h1>
+<p>変換・圧縮・リサイズ・切り抜きをひとつの画面で。<br>画像は端末内で処理します。登録もアップロードも不要です。</p>
+</div>
+<div class="image-badge">端末内で処理<br>
+<strong>画像を送信しません</strong>
+</div>
+</div>
+<section id="tools" class="image-workspace" aria-label="画像編集ツール">
+<div class="image-head">
+<span class="image-step">01</span>
+<div>
+<h2>画像を選ぶ</h2>
+<p>JPEG・PNG・WebP・HEIC / HEIF。複数選択できます。</p>
+</div>
+</div>
+<div id="drop-zone" class="image-drop" tabindex="0" role="button" aria-label="画像ファイルを選択">
+<div class="drop-symbol">＋</div>
+<strong>ここに画像をドロップ</strong>
+<span>またはクリックしてファイルを選択</span>
+<small>処理した画像はサーバーに送られません</small>
+<input id="file-input" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" multiple hidden>
+</div>
+<div id="file-area" class="file-area" hidden>
+<div class="file-heading">
+<h3>選択した画像 <span id="file-count">
+</span>
+</h3>
+<div>
+<button id="add-files" type="button" class="text-button">＋ 追加</button>
+<button id="clear-files" type="button" class="text-button">すべて削除</button>
+</div>
+</div>
+<div id="file-list" class="file-list">
+</div>
+</div>
+<div class="image-divider">
+</div>
+<div class="image-head">
+<span class="image-step">02</span>
+<div>
+<h2>編集する</h2>
+<p>設定は選択した画像すべてに適用されます。切り抜き範囲は一覧から選んだ画像で指定してください。</p>
+</div>
+</div>
+<div class="image-editor">
+<div class="image-settings">
+<div class="setting-block">
+<label for="format">保存形式</label>
+<select id="format">
+<option value="image/jpeg">JPG</option>
+<option value="image/png">PNG</option>
+<option value="image/webp">WebP</option>
+</select>
+<p class="setting-hint">JPGは透明部分が白になります。PNGは画質設定がありません。</p>
+</div>
+<div class="setting-block">
+<label for="quality">画質・圧縮 <output id="quality-value">80%</output>
+</label>
+<input id="quality" type="range" min="10" max="100" value="80">
+<p class="setting-hint">数値を下げると容量を小さくできます。元画像より必ず小さくなるとは限りません。</p>
+</div>
+<div class="setting-block">
+<label for="max-width">サイズ変更（最大幅 × 最大高さ）</label>
+<div class="dimension-row">
+<input id="max-width" type="number" min="1" max="30000" inputmode="numeric" placeholder="元の幅">
+<span>×</span>
+<input id="max-height" type="number" min="1" max="30000" inputmode="numeric" placeholder="元の高さ">
+<span>px</span>
+</div>
+<p class="setting-hint">空欄なら元のサイズ。縦横比を保ち、拡大しません。</p>
+</div>
+<div class="setting-block">
+<span class="setting-label">回転・反転</span>
+<div class="transform-row">
+<button id="rotate-left" type="button">↶ 左90°</button>
+<button id="rotate-right" type="button">↷ 右90°</button>
+<button id="flip-x" type="button">↔ 左右反転</button>
+<button id="flip-y" type="button">↕ 上下反転</button>
+</div>
+<button id="reset-transform" type="button" class="text-button">回転・反転をリセット</button>
+</div>
+<div class="setting-block">
+<label class="check-line">
+<input id="crop-enabled" type="checkbox"> トリミングを適用</label>
+<p class="setting-hint">プレビューの四隅をドラッグして範囲を指定。同じ割合を全画像に適用します。</p>
+<button id="reset-crop" type="button" class="text-button">範囲をリセット</button>
+</div>
+</div>
+<div class="preview-panel">
+<div class="preview-top">
+<strong>プレビュー</strong>
+<span id="preview-name">画像を選ぶと表示されます</span>
+</div>
+<div id="preview-stage" class="preview-stage">
+<span id="preview-empty">画像を選択してください</span>
+<div id="preview-frame" class="preview-frame" hidden>
+<img id="preview-image" alt="編集中の画像">
+<div id="crop-box" class="crop-box" hidden>
+<i data-handle="nw">
+</i>
+<i data-handle="ne">
+</i>
+<i data-handle="sw">
+</i>
+<i data-handle="se">
+</i>
+</div>
+</div>
+</div>
+<p id="preview-info" class="preview-info">複数画像もまとめて編集できます。</p>
+</div>
+</div>
+<div class="image-divider">
+</div>
+<div class="image-head">
+<span class="image-step">03</span>
+<div>
+<h2>保存する</h2>
+<p>1枚はそのまま、複数枚はZIPでまとめて保存できます。</p>
+</div>
+</div>
+<div class="export-area">
+<button id="process-files" type="button" class="export-button" disabled>画像を処理して保存 <span>→</span>
+</button>
+<p id="status" role="status" aria-live="polite">画像を選択してください。</p>
+</div>
+<div id="results" class="results" hidden>
+</div>
+</section>
+<section id="faq" class="image-faq">
+<h2>よくある質問</h2>
+<details>
+<summary>HEIC画像をJPGに変換できますか？</summary>
+<p>はい。HEIC / HEIF画像を選び、保存形式をJPGにして保存してください。端末の性能やファイルによって処理時間が変わります。</p>
+</details>
+<details>
+<summary>画像は外部に送信されますか？</summary>
+<p>いいえ。画像の読み込み、変換、保存はブラウザ内で行います。ページ表示用のサイトデータの取得は発生します。</p>
+</details>
+<details>
+<summary>画像の位置情報は残りますか？</summary>
+<p>Canvasで描き直して保存するため、通常、元画像のEXIF位置情報は引き継がれません。メタデータを保持したい画像には使用しないでください。</p>
+</details>
+</section>
+</div>
+</main>
+<footer class="site-footer"><div><strong>画像ツール</strong><small>© 2026 タイマイオンザライス</small></div><nav><a href="operator.html">運営者情報</a><a href="privacy.html">プライバシーポリシー</a><a href="https://daitoku-inc.com/free-tools.html">ダイトクの無料ツール一覧 ↗</a></nav></footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js" integrity="sha512-VjmsArkf8Vv2yyvbXCyVxp+R3n4N2WyS1GEQ+YQxa7Hu0tx836WpY4nW9/T1W5JBmvuIsxkVH/DlHgp7NEMjDw==" crossorigin="anonymous">
+</script>
+<script src="app.js?v=20260928" defer>
+</script>
+</body>
+</html>
