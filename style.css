@@ -1,25 +1,25 @@
 
 :root{--header:72px;--line:#d9dee5;--gold:#bd9445}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:#14273a;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;line-height:1.7}a{color:inherit;text-decoration:none}button,input,select{font:inherit}button{cursor:pointer}img{display:block;max-width:100%}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:#14273a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP","Yu Gothic",sans-serif;line-height:1.7}a{color:inherit;text-decoration:none}button,input,select{font:inherit}button{cursor:pointer}img{display:block;max-width:100%}
 .site-header{height:var(--header);padding:0 max(22px,calc((100vw - 1120px)/2));background:#fff;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e3eaf0;position:sticky;top:0;z-index:10}
 .site-header .brand{font-size:21px;font-weight:800;color:#0d5178;white-space:nowrap}.site-header .brand span{font-size:10px;letter-spacing:.16em;color:#8599a7;margin-left:8px}.standalone-nav{display:flex;gap:28px;font-size:12px;color:#4b6070}.standalone-nav a:hover,.site-footer a:hover{color:#147ba5}
 .site-footer{padding:36px max(22px,calc((100vw - 1120px)/2));background:#0b2940;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:20px}.site-footer strong,.site-footer small{display:block}.site-footer small{margin-top:7px;color:#b5c5d0;font-size:11px}.site-footer nav{display:flex;flex-wrap:wrap;gap:20px;font-size:12px}
-.image-main{padding-top:0}.image-wrap{max-width:1120px}.image-kicker{font-weight:700}.image-title h1,.image-head h2,.image-faq h2{font-family:"Noto Serif JP",serif}.plain-page{background:#f5f7f9;min-height:calc(100vh - 200px);padding:50px 20px 100px}.plain-card{max-width:800px;margin:auto;background:white;padding:45px;border:1px solid #e1e6eb;border-radius:12px}.plain-card h1{font-size:26px}.plain-card h2{font-size:17px;margin-top:32px}.plain-card p,.plain-card li,.plain-card dd,.plain-card dt{font-size:14px;color:#405564}.plain-card dl>div{display:grid;grid-template-columns:150px 1fr;border-bottom:1px solid #e1e6eb;padding:12px 0}.plain-card dt{font-weight:700}.plain-card dd{margin:0}@media(max-width:760px){.standalone-nav{gap:12px;font-size:10px}.standalone-nav a:nth-child(2){display:none}.site-header .brand span{display:none}.site-footer{display:block}.site-footer nav{margin-top:18px}.plain-card{padding:25px}.plain-card dl>div{display:block}}
+.image-main{padding-top:0}.image-wrap{max-width:1120px}.image-kicker{font-weight:700}.plain-page{background:#f5f7f9;min-height:calc(100vh - 200px);padding:50px 20px 100px}.plain-card{max-width:800px;margin:auto;background:white;padding:45px;border:1px solid #e1e6eb;border-radius:12px}.plain-card h1{font-size:26px}.plain-card h2{font-size:17px;margin-top:32px}.plain-card p,.plain-card li,.plain-card dd,.plain-card dt{font-size:14px;color:#405564}.plain-card dl>div{display:grid;grid-template-columns:150px 1fr;border-bottom:1px solid #e1e6eb;padding:12px 0}.plain-card dt{font-weight:700}.plain-card dd{margin:0}@media(max-width:760px){.standalone-nav{gap:12px;font-size:10px}.standalone-nav a:nth-child(2){display:none}.site-header .brand span{display:none}.site-footer{display:block}.site-footer nav{margin-top:18px}.plain-card{padding:25px}.plain-card dl>div{display:block}}
 .image-tools-page{background:#f5f7f9}
 .image-main{padding-top:var(--header)}
 .image-wrap{width:min(1120px,calc(100% - 40px));margin:auto}
 .image-breadcrumb{padding:23px 0;display:flex;gap:12px;color:#6c7886;font-size:12px}
 .image-breadcrumb a:hover,.text-button:hover{color:#0766ad}
 .image-title{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;padding:44px 0 52px}
-.image-kicker{color:#147ba5;font:700 12px Georgia,serif;letter-spacing:.18em}
-.image-title h1{margin:12px 0 14px;font:500 clamp(29px,3.4vw,45px)/1.4 "Noto Serif JP",serif;color:#102e49}
+.image-kicker{color:#147ba5;font-size:12px;font-weight:700;letter-spacing:.18em}
+.image-title h1{margin:12px 0 14px;font-size:clamp(29px,3.4vw,45px);font-weight:800;line-height:1.4;color:#102e49}
 .image-title p{margin:0;color:#596c7b;font-size:14px;line-height:2}
 .image-badge{border:1px solid #d4e9e8;background:#e9f5f2;color:#226556;padding:17px 24px;font-size:12px;white-space:nowrap}
 .image-badge strong{font-size:15px}
 .image-workspace{background:#fff;border:1px solid #e1e6eb;border-radius:16px;box-shadow:0 15px 50px #11324d0a;padding:44px}
 .image-head{display:flex;align-items:center;gap:17px;margin-bottom:24px}
-.image-step{width:43px;height:43px;flex:none;border-radius:50%;display:grid;place-items:center;background:#e8f2f8;color:#145c83;font:700 13px Georgia,serif}
-.image-head h2{font:500 23px "Noto Serif JP",serif;margin:0 0 3px}
+.image-step{width:43px;height:43px;flex:none;border-radius:50%;display:grid;place-items:center;background:#e8f2f8;color:#145c83;font-size:13px;font-weight:700}
+.image-head h2{font-size:23px;font-weight:800;margin:0 0 3px}
 .image-head p{color:#697888;font-size:12px;margin:0}
 .image-drop{border:2px dashed #9dc1d1;border-radius:12px;min-height:220px;background:#f7fbfd;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;cursor:pointer;text-align:center}
 .image-drop:hover,.image-drop:focus-visible,.image-drop.drag-over{background:#edf7fc;border-color:#1685b0;outline:none}
@@ -79,7 +79,7 @@
 .results a{display:inline-block;margin:4px 9px 4px 0;color:#096e9a;text-decoration:underline;font-size:12px;max-width:100%;overflow-wrap:anywhere}
 .results p{font-size:12px;color:#9b4238}
 .image-faq{padding:75px 0 95px;max-width:800px;margin:auto}
-.image-faq h2{font:500 25px "Noto Serif JP",serif}
+.image-faq h2{font-size:25px;font-weight:800}
 .image-faq details{border-bottom:1px solid #cbd6dc;padding:17px 0}
 .image-faq summary{cursor:pointer;font-weight:600;font-size:14px}
 .image-faq p{font-size:12px;color:#5b6874}
@@ -97,4 +97,3 @@
 .image-divider{margin:30px 0}
 .export-button{width:100%}
 }
-
