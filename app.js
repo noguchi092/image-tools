@@ -2,6 +2,17 @@
   'use strict';
   const $ = (id) => document.getElementById(id);
   const refs = { input: $('file-input'), drop: $('drop-zone'), area: $('file-area'), list: $('file-list'), count: $('file-count'), format: $('format'), quality: $('quality'), qualityValue: $('quality-value'), width: $('max-width'), height: $('max-height'), cropOn: $('crop-enabled'), cropBox: $('crop-box'), frame: $('preview-frame'), preview: $('preview-image'), empty: $('preview-empty'), name: $('preview-name'), info: $('preview-info'), status: $('status'), button: $('process-files'), results: $('results') };
+  // Keep the same controls and their values when switching between layouts.
+  const colorPanel = document.querySelector('.color-settings');
+  const settingsPanel = document.querySelector('.image-settings');
+  const previewPanel = document.querySelector('.preview-panel');
+  const mobileLayout = window.matchMedia('(max-width: 760px)');
+  function placeColorControls() {
+    if (mobileLayout.matches) previewPanel.append(colorPanel);
+    else settingsPanel.prepend(colorPanel);
+  }
+  placeColorControls();
+  mobileLayout.addEventListener('change', placeColorControls);
   const colorKeys = ['brightness', 'contrast', 'saturation', 'warmth', 'hue'];
   const colorSettings = () => Object.fromEntries(colorKeys.map(key => [key, Number($(key).value)]));
   let previewBase = null;
