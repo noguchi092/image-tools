@@ -2,6 +2,53 @@
   'use strict';
   const $ = (id) => document.getElementById(id);
   const refs = { input: $('file-input'), drop: $('drop-zone'), area: $('file-area'), list: $('file-list'), count: $('file-count'), format: $('format'), quality: $('quality'), qualityValue: $('quality-value'), width: $('max-width'), height: $('max-height'), cropOn: $('crop-enabled'), cropBox: $('crop-box'), frame: $('preview-frame'), preview: $('preview-image'), empty: $('preview-empty'), name: $('preview-name'), info: $('preview-info'), status: $('status'), button: $('process-files'), results: $('results') };
+  const colorKeys = ['brightness', 'contrast', 'saturation', 'warmth', 'hue'];
+  const colorSettings = () => Object.fromEntries(colorKeys.map(key => [key, Number($(key).value)]));
+  let previewBase = null;
+  let previewRequest = 0;
+  // Pixel processing works in browsers without CanvasRenderingContext2D.filter, too.
+  function adjustPixels(data, settings) {
+    const { brightness, contrast, saturation, warmth, hue } = settings;
+    if (!brightness && !contrast && !saturation && !warmth && !hue) return;
+    const exposure = Math.pow(2, brightness / 50);
+    const factor = Math.pow(2, contrast / 50);
+    const sat = 1 + saturation / 100;
+    const angle = hue * Math.PI / 180, cos = Math.cos(angle), sin = Math.sin(angle);
+    const m = [
+      .213 + cos * .787 - sin * .213, .715 - cos * .715 - sin * .715, .072 - cos * .072 + sin * .928,
+      .213 - cos * .213 + sin * .143, .715 + cos * .285 + sin * .140, .072 - cos * .072 - sin * .283,
+      .213 - cos * .213 - sin * .787, .715 - cos * .715 + sin * .715, .072 + cos * .928 + sin * .072
+    ];
+    for (let i = 0; i < data.length; i += 4) {
+      if (!data[i + 3]) continue;
+      let r = (data[i] * exposure - 128) * factor + 128 + warmth * .45;
+      let g = (data[i + 1] * exposure - 128) * factor + 128;
+      let b = (data[i + 2] * exposure - 128) * factor + 128 - warmth * .45;
+      const gray = .2126 * r + .7152 * g + .0722 * b;
+      r = gray + (r - gray) * sat; g = gray + (g - gray) * sat; b = gray + (b - gray) * sat;
+      data[i] = m[0] * r + m[1] * g + m[2] * b;
+      data[i + 1] = m[3] * r + m[4] * g + m[5] * b;
+      data[i + 2] = m[6] * r + m[7] * g + m[8] * b;
+    }
+  }
+  function applyColors(canvas, settings) {
+    if (!Object.values(settings).some(Boolean)) return;
+    const ctx = canvas.getContext('2d');
+    // Bound the additional pixel buffer for large photographs.
+    for (let y = 0; y < canvas.height; y += 128) {
+      const pixels = ctx.getImageData(0, y, canvas.width, Math.min(128, canvas.height - y));
+      adjustPixels(pixels.data, settings);
+      ctx.putImageData(pixels, 0, y);
+    }
+  }
+  function updateColorPreview() {
+    if (!previewBase) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = previewBase.width; canvas.height = previewBase.height;
+    canvas.getContext('2d').drawImage(previewBase, 0, 0);
+    applyColors(canvas, colorSettings());
+    refs.preview.src = canvas.toDataURL('image/png');
+  }
   const items = [];
   let selected = 0, rotation = 0, flipX = false, flipY = false;
   let crop = { x: .08, y: .08, w: .84, h: .84 };
@@ -73,6 +120,8 @@
     status(`${valid.length}枚の画像を追加しました。`);
   }
   async function renderPreview() {
+    const request = ++previewRequest;
+    previewBase = null;
     const item = items[selected];
     if (!item) { refs.frame.hidden = true; refs.empty.hidden = false; refs.name.textContent = '画像を選ぶと表示されます'; refs.info.textContent = '複数画像もまとめて編集できます。'; return; }
     refs.name.textContent = item.file.name;
@@ -80,13 +129,14 @@
     try {
       const source = await sourceFor(item);
       const img = await decodeImage(source);
-      if (index !== selected || items[index] !== item) return;
+      if (request !== previewRequest || index !== selected || items[index] !== item) return;
       const canvas = document.createElement('canvas');
       const scale = Math.min(1, 1100 / Math.max(img.naturalWidth, img.naturalHeight));
       canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
       canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
       canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      refs.preview.src = canvas.toDataURL('image/png');
+      previewBase = canvas;
+      updateColorPreview();
       refs.preview.onload = () => { if (items[selected] === item) updateCropBox(); };
       refs.frame.hidden = false; refs.empty.hidden = true;
       refs.info.textContent = `${img.naturalWidth} × ${img.naturalHeight} px · ${byteSize(item.file.size)}${rotation || flipX || flipY ? ` · 出力時に${rotation}°回転／反転を適用` : ''}`;
@@ -120,7 +170,7 @@
   refs.cropBox.addEventListener('pointerup', () => { drag = null; });
   refs.cropBox.addEventListener('pointercancel', () => { drag = null; });
   function dimension(field) { const raw = field.value.trim(); if (!raw) return null; const n = Number(raw); if (!Number.isInteger(n) || n < 1 || n > 30000) throw new Error('最大幅・高さは1～30000の整数で入力してください。'); return n; }
-  async function convert(item) {
+  async function convert(item, colors) {
     const img = await decodeImage(await sourceFor(item));
     const sx = refs.cropOn.checked ? Math.floor(img.naturalWidth * crop.x) : 0;
     const sy = refs.cropOn.checked ? Math.floor(img.naturalHeight * crop.y) : 0;
@@ -133,12 +183,19 @@
     const canvas = document.createElement('canvas'); canvas.width = turned ? h : w; canvas.height = turned ? w : h;
     if (canvas.width * canvas.height > 50000000) throw new Error('画像が大きすぎます。最大幅・高さを小さくしてください。');
     const ctx = canvas.getContext('2d'); if (!ctx) throw new Error('画像処理を開始できませんでした。');
-    if (refs.format.value === 'image/jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate(rotation * Math.PI / 180);
     ctx.scale(flipX ? -1 : 1, flipY ? -1 : 1);
     ctx.drawImage(img, sx, sy, sw, sh, -w / 2, -h / 2, w, h);
+    applyColors(canvas, colors);
     const type = refs.format.value;
+    if (type === 'image/jpeg') {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.globalCompositeOperation = 'destination-over';
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = 'source-over';
+    }
     const blob = await new Promise((resolve, reject) => canvas.toBlob(result => result ? resolve(result) : reject(new Error('このブラウザでは画像を書き出せません。')), type, Number(refs.quality.value) / 100));
     if (blob.type !== type) throw new Error('選択した保存形式にこのブラウザが対応していません。');
     return blob;
@@ -165,12 +222,13 @@
     if (!items.length || busy) return;
     try { dimension(refs.width); dimension(refs.height); } catch (err) { status(err.message, true); return; }
     busy = true; refs.button.disabled = true; revokeOutputs();
+    const colors = colorSettings();
     const completed = [], failures = [], names = new Set();
     for (let i = 0; i < items.length; i++) {
       const item = items[i]; status(`${i + 1} / ${items.length} 枚を処理中…`);
       await new Promise(resolve => setTimeout(resolve, 0));
       try {
-        const blob = await convert(item);
+        const blob = await convert(item, colors);
         let base = item.file.name.replace(/\.[^.]+$/, '').replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_').slice(0, 120) || 'image';
         let filename = `${base}.${mime[refs.format.value]}`, suffix = 2;
         while (names.has(filename.toLowerCase())) filename = `${base}-${suffix++}.${mime[refs.format.value]}`;
@@ -210,5 +268,16 @@
   $('flip-x').addEventListener('click', () => { flipX = !flipX; renderPreview(); });
   $('flip-y').addEventListener('click', () => { flipY = !flipY; renderPreview(); });
   $('reset-transform').addEventListener('click', () => { rotation = 0; flipX = flipY = false; renderPreview(); });
+  let colorFrame;
+  colorKeys.forEach(key => $(key).addEventListener('input', () => {
+    $(key + '-value').value = $(key).value + (key === 'hue' ? '°' : '');
+    revokeOutputs();
+    cancelAnimationFrame(colorFrame);
+    colorFrame = requestAnimationFrame(updateColorPreview);
+  }));
+  $('reset-colors').addEventListener('click', () => {
+    colorKeys.forEach(key => { $(key).value = 0; $(key + '-value').value = key === 'hue' ? '0°' : '0'; });
+    revokeOutputs(); updateColorPreview();
+  });
   refs.button.addEventListener('click', process);
 })();
