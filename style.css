@@ -102,3 +102,5 @@
 .color-settings legend{font-weight:700;font-size:15px;padding:0 6px}
 .color-settings>label{margin:16px 0 4px}
 .color-settings output{font-variant-numeric:tabular-nums}
+
+@media(max-width:760px){.preview-panel>.color-settings{margin-top:20px}}
